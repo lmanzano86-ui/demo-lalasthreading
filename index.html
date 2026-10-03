@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lala's Threading & Beauty Salon — Tampa, FL</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', system-ui, -apple-system, sans-serif; background:#fff9f6; color:#4a3540; max-width:640px; margin:0 auto; }
+  .serif { font-family:Georgia, 'Times New Roman', serif; }
+  .topbar { background:linear-gradient(90deg,#8c5a6b,#b76e82,#8c5a6b); color:#fff; text-align:center; font-size:.76rem; font-weight:700; padding:9px 12px; letter-spacing:1.5px; }
+  header { background:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #e8c9a0; position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(140,90,107,.1); }
+  header .logo { font-family:Georgia, serif; font-size:1.25rem; color:#8c5a6b; font-weight:700; }
+  header .logo span { color:#c9a24b; font-style:italic; font-weight:400; font-size:1rem; display:block; line-height:1; }
+  .lang button { border:1.5px solid #c9a24b; background:#fff; color:#8c5a6b; font-weight:700; border-radius:20px; padding:6px 14px; font-size:.8rem; cursor:pointer; }
+  .lang button.on { background:#c9a24b; color:#fff; border-color:#c9a24b; }
+  .hero { position:relative; }
+  .hero img { width:100%; height:430px; object-fit:cover; display:block; }
+  .hero .veil { position:absolute; inset:0; background:linear-gradient(180deg, rgba(74,53,64,.05) 30%, rgba(74,53,64,.72) 100%); }
+  .hero .txt { position:absolute; left:0; right:0; bottom:0; padding:26px 24px 30px; color:#fff; text-align:center; }
+  .hero .eyebrow { font-size:.72rem; letter-spacing:3px; color:#f3d9a4; font-weight:700; margin-bottom:10px; }
+  .hero h1 { font-family:Georgia, serif; font-size:2rem; line-height:1.15; font-weight:400; font-style:italic; }
+  .hero p { font-size:.92rem; margin-top:10px; color:#f6e9e4; }
+  .hero .stars { margin-top:10px; color:#f3d9a4; font-weight:700; }
+  .hero .stars small { color:#f6e9e4; font-weight:400; }
+  .cta-row { display:flex; gap:10px; margin-top:16px; }
+  .cta-row a { flex:1; text-align:center; text-decoration:none; font-weight:700; border-radius:30px; padding:14px 8px; font-size:.93rem; letter-spacing:.3px; }
+  .cta-book { background:#c9a24b; color:#fff; box-shadow:0 4px 14px rgba(201,162,75,.45); }
+  .cta-call { background:rgba(255,255,255,.92); color:#8c5a6b; }
+  main { padding:28px 18px 0; }
+  section { margin-bottom:34px; }
+  .kicker { font-size:.7rem; font-weight:800; letter-spacing:2.5px; color:#c9a24b; margin-bottom:8px; text-align:center; }
+  h2 { font-family:Georgia, serif; font-size:1.6rem; color:#5c3a47; margin-bottom:8px; text-align:center; font-weight:400; font-style:italic; }
+  .sub { font-size:.88rem; color:#97828c; margin-bottom:18px; text-align:center; }
+  .about { display:flex; gap:14px; align-items:center; background:#fff; border-radius:20px; padding:18px; box-shadow:0 4px 16px rgba(140,90,107,.1); }
+  .about img { width:110px; height:130px; object-fit:cover; border-radius:14px; flex-shrink:0; }
+  .about p { font-size:.88rem; line-height:1.6; color:#6b5560; }
+  .about p b { color:#8c5a6b; }
+  .svc { background:#fff; border-radius:16px; padding:16px 18px; margin-bottom:10px; box-shadow:0 3px 10px rgba(140,90,107,.08); display:flex; justify-content:space-between; align-items:center; gap:10px; border-left:4px solid #e8c9a0; }
+  .svc .n h3 { font-size:1rem; color:#5c3a47; font-weight:700; }
+  .svc .n p { font-size:.8rem; color:#97828c; margin-top:3px; }
+  .svc .p { font-family:Georgia, serif; font-size:1.25rem; color:#b76e82; font-weight:700; white-space:nowrap; }
+  .svc .p small { display:block; font-family:'Segoe UI',sans-serif; font-size:.65rem; color:#bfa9b2; font-weight:400; text-align:right; }
+  .svc.star { border-left-color:#c9a24b; background:linear-gradient(135deg,#fff9f6,#fdf1e3); }
+  .svc.star .tag { display:inline-block; background:#c9a24b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:1px; border-radius:12px; padding:3px 10px; margin-bottom:5px; }
+  .sample-note { font-size:.75rem; color:#bfa9b2; margin-top:12px; text-align:center; font-style:italic; }
+  .why { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .w { background:#fff; border-radius:16px; padding:18px 12px; text-align:center; box-shadow:0 3px 10px rgba(140,90,107,.08); }
+  .w .em { font-size:1.9rem; }
+  .w h3 { font-size:.88rem; color:#8c5a6b; margin-top:8px; }
+  .w p { font-size:.76rem; color:#97828c; margin-top:4px; line-height:1.45; }
+  .gal { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .gal img { width:100%; height:190px; object-fit:cover; border-radius:16px; box-shadow:0 3px 10px rgba(140,90,107,.12); border:1px solid #f0ddd2; }
+  .gal img.tall { grid-row:span 2; height:390px; }
+  .orn { text-align:center; color:#c9a24b; font-size:.8rem; letter-spacing:8px; margin:0 0 26px; }
+  .quote { background:linear-gradient(135deg,#fdf3ec,#fbe9e4); border-radius:20px; padding:26px 22px; text-align:center; border:1px solid #ecd9c8; }
+  .quote p { font-family:Georgia, serif; font-style:italic; font-size:1.12rem; color:#8c5a6b; line-height:1.6; }
+  .quote .qmark { font-size:2rem; color:#c9a24b; line-height:1; margin-bottom:6px; }
+  .rev { background:#fff; border-radius:16px; padding:16px; margin-bottom:10px; box-shadow:0 3px 10px rgba(140,90,107,.08); }
+  .rev .who { font-weight:700; font-size:.86rem; color:#8c5a6b; }
+  .rev .st { color:#c9a24b; font-size:.85rem; letter-spacing:2px; }
+  .rev p { font-size:.87rem; color:#6b5560; margin-top:6px; line-height:1.55; font-style:italic; }
+  .book-banner { background:linear-gradient(135deg,#5c3a47,#8c5a6b); border-radius:22px; padding:30px 22px; text-align:center; color:#fff; box-shadow:0 8px 24px rgba(92,58,71,.3); }
+  .book-banner h2 { color:#fff; }
+  .book-banner p { font-size:.9rem; color:#f0dcd8; margin:10px 0 18px; line-height:1.55; }
+  .book-banner .row { display:flex; gap:10px; }
+  .book-banner a { flex:1; text-decoration:none; font-weight:800; border-radius:30px; padding:14px 8px; font-size:.93rem; }
+  .book-banner .b1 { background:#c9a24b; color:#fff; }
+  .book-banner .b2 { background:rgba(255,255,255,.15); color:#fff; border:1.5px solid rgba(255,255,255,.5); }
+  .qrs { display:flex; gap:10px; justify-content:center; }
+  .qr { background:#fff; border-radius:16px; padding:12px 8px; text-align:center; flex:1; box-shadow:0 3px 10px rgba(140,90,107,.08); }
+  .qr img { width:100%; max-width:130px; height:auto; }
+  .qr p { font-size:.74rem; font-weight:700; color:#8c5a6b; margin-top:6px; }
+  .hours { background:#fff; border-radius:18px; padding:20px; box-shadow:0 3px 10px rgba(140,90,107,.08); }
+  .hours table { width:100%; font-size:.9rem; border-collapse:collapse; }
+  .hours td { padding:9px 4px; border-bottom:1px solid #f3e6e6; color:#6b5560; }
+  .hours td:last-child { text-align:right; font-weight:700; color:#4a3540; }
+  .hours tr.today td { color:#b76e82; font-weight:800; }
+  .hours tr.closed td:last-child { color:#b76e82; }
+  .info-card { background:#fff; border-radius:18px; padding:20px; box-shadow:0 3px 10px rgba(140,90,107,.08); text-align:center; }
+  .info-card p { font-size:.9rem; color:#6b5560; margin:8px 0; }
+  .info-card .tel { font-family:Georgia, serif; font-size:1.4rem; color:#b76e82; text-decoration:none; font-weight:700; }
+  .fab { position:fixed; bottom:18px; right:18px; width:58px; height:58px; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; font-size:1.7rem; text-decoration:none; box-shadow:0 6px 18px rgba(0,0,0,.3); z-index:99; }
+  footer { background:#3d2b33; color:#c9aeae; text-align:center; padding:28px 18px 96px; font-size:.82rem; }
+  footer .logo { font-family:Georgia, serif; font-size:1.2rem; color:#f3d9a4; }
+  .demo-tag { background:#fff3cd; color:#856404; text-align:center; font-size:.75rem; padding:8px; }
+</style>
+</head>
+<body>
+
+<div class="topbar" data-es="✦ BELLEZA CON TOQUE PERSONAL ✦" data-en="✦ BEAUTY WITH A PERSONAL TOUCH ✦">✦ BELLEZA CON TOQUE PERSONAL ✦</div>
+
+<header>
+  <div class="logo">Lala's <span>Threading & Beauty Salon</span></div>
+  <div class="lang">
+    <button id="btn-es" class="on" onclick="setLang('es')">ES</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</header>
+
+<div class="hero">
+  <img src="imgs/threading.jpg" alt="Eyebrow threading">
+  <div class="veil"></div>
+  <div class="txt">
+    <div class="eyebrow" data-es="TAMPA · FLORIDA" data-en="TAMPA · FLORIDA">TAMPA · FLORIDA</div>
+    <h1 data-es="Cejas perfectas, sin dolor" data-en="Perfect brows, pain-free">Cejas perfectas, sin dolor</h1>
+    <p data-es="Threading, cejas, maquillaje y más — en manos de una maestra." data-en="Threading, brows, makeup and more — in a master's hands.">Threading, cejas, maquillaje y más — en manos de una maestra.</p>
+    <div class="stars">★★★★★ <small>5.0 · 500+ reseñas en Google</small></div>
+    <div class="cta-row">
+      <a class="cta-book" href="tel:+18137921144" data-es="Reservar cita" data-en="Book now">Reservar cita</a>
+      <a class="cta-call" href="https://www.google.com/maps/search/?api=1&query=Lala%27s+Threading+%26+Beauty+Salon+4303+Gunn+Hwy+Tampa+FL+33618" data-es="Cómo llegar" data-en="Directions">Cómo llegar</a>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="BIENVENIDA" data-en="WELCOME">BIENVENIDA</div>
+  <h2 data-es="El arte de realzar tu belleza" data-en="The art of enhancing your beauty">El arte de realzar tu belleza</h2>
+  <div class="about" style="margin-top:14px;">
+    <img src="imgs/salon.jpg" alt="Salón">
+    <p data-es="En <b>Lala's</b> cada clienta recibe atención personal: Lala escucha lo que quieres, diseña tus cejas según tu rostro y trabaja con una suavidad que sus clientas describen como <b>“sin dolor”</b>. Limpieza, puntualidad y resultados que te hacen volver." data-en="At <b>Lala's</b> every client gets personal care: Lala listens to what you want, shapes your brows to your face and works with a gentleness her clients describe as <b>“pain-free”</b>. Cleanliness, punctuality and results that bring you back.">En <b>Lala's</b> cada clienta recibe atención personal: Lala escucha lo que quieres, diseña tus cejas según tu rostro y trabaja con una suavidad que sus clientas describen como <b>“sin dolor”</b>. Limpieza, puntualidad y resultados que te hacen volver.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kicker" data-es="SERVICIOS Y PRECIOS" data-en="SERVICES & PRICES">SERVICIOS Y PRECIOS</div>
+  <h2 data-es="Nuestros servicios" data-en="Our services">Nuestros servicios</h2>
+  <p class="sub" data-es="Precios honestos, sin sorpresas" data-en="Honest prices, no surprises">Precios honestos, sin sorpresas</p>
+
+  <div class="svc star">
+    <div class="n"><span class="tag" data-es="LA ESPECIALIDAD" data-en="THE SPECIALTY">LA ESPECIALIDAD</span><h3 data-es="Threading de cejas" data-en="Eyebrow threading">Threading de cejas</h3><p data-es="Diseño según tu rostro · 15 min" data-en="Shaped to your face · 15 min">Diseño según tu rostro · 15 min</p></div>
+    <div class="p">$12<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Labio superior" data-en="Upper lip">Labio superior</h3><p data-es="Threading suave y preciso" data-en="Gentle, precise threading">Threading suave y preciso</p></div>
+    <div class="p">$8<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Rostro completo" data-en="Full face">Rostro completo</h3><p data-es="Threading completo facial" data-en="Complete facial threading">Threading completo facial</p></div>
+    <div class="p">$35<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Tinte de cejas" data-en="Eyebrow tinting">Tinte de cejas</h3><p data-es="Color y definición" data-en="Color and definition">Color y definición</p></div>
+    <div class="p">$15<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Corte y peinado" data-en="Haircut & styling">Corte y peinado</h3><p data-es="Damas y caballeros" data-en="Ladies and gentlemen">Damas y caballeros</p></div>
+    <div class="p">$25<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Maquillaje" data-en="Makeup">Maquillaje</h3><p data-es="Eventos y ocasiones especiales" data-en="Events and special occasions">Eventos y ocasiones especiales</p></div>
+    <div class="p">$40<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Cera facial" data-en="Facial waxing">Cera facial</h3><p data-es="Depilación suave con cera" data-en="Gentle wax hair removal">Depilación suave con cera</p></div>
+    <div class="p">$18<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <div class="svc">
+    <div class="n"><h3 data-es="Uñas" data-en="Nails">Uñas</h3><p data-es="Manicura y cuidado de uñas" data-en="Manicure and nail care">Manicura y cuidado de uñas</p></div>
+    <div class="p">$20<small data-es="muestra" data-en="sample">muestra</small></div>
+  </div>
+  <p class="sample-note" data-es="* Precios de muestra para la demostración." data-en="* Sample prices for demonstration.">* Precios de muestra para la demostración.</p>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="POR QUÉ LALA'S" data-en="WHY LALA'S">POR QUÉ LALA'S</div>
+  <h2 data-es="La diferencia está en el detalle" data-en="The difference is in the detail">La diferencia está en el detalle</h2>
+  <div class="why" style="margin-top:14px;">
+    <div class="w"><div class="em">🤲</div><h3 data-es="Sin dolor" data-en="Pain-free">Sin dolor</h3><p data-es="Técnica suave, incluso en labio superior" data-en="Gentle technique, even on upper lip">Técnica suave, incluso en labio superior</p></div>
+    <div class="w"><div class="em">⚡</div><h3 data-es="Rápida" data-en="Fast">Rápida</h3><p data-es="Cejas listas en 15 minutos" data-en="Brows done in 15 minutes">Cejas listas en 15 minutos</p></div>
+    <div class="w"><div class="em">💬</div><h3 data-es="Te escucha" data-en="She listens">Te escucha</h3><p data-es="Diseño según tu rostro y tu gusto" data-en="Shaped to your face and taste">Diseño según tu rostro y tu gusto</p></div>
+    <div class="w"><div class="em">✨</div><h3 data-es="Limpieza" data-en="Cleanliness">Limpieza</h3><p data-es="Salón impecable y acogedor" data-en="Spotless, welcoming salon">Salón impecable y acogedor</p></div>
+  </div>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="quote">
+    <div class="qmark">“</div>
+    <p data-es="Tu belleza merece manos expertas y un trato personal." data-en="Your beauty deserves expert hands and personal care.">Tu belleza merece manos expertas y un trato personal.</p>
+  </div>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="NUESTRO ESPACIO" data-en="OUR SPACE">NUESTRO ESPACIO</div>
+  <h2 data-es="Un rincón de calma" data-en="A corner of calm">Un rincón de calma</h2>
+  <div class="gal" style="margin-top:14px;">
+    <img class="tall" src="imgs/salon.jpg" alt="Salón">
+    <img src="imgs/threading.jpg" alt="Threading">
+    <img src="imgs/makeup.jpg" alt="Maquillaje">
+  </div>
+  <p class="sample-note" data-es="Fotos de muestra." data-en="Sample photos.">Fotos de muestra.</p>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="book-banner">
+    <h2 data-es="Reserva tu cita hoy" data-en="Book your appointment today">Reserva tu cita hoy</h2>
+    <p data-es="Llama o escríbenos por WhatsApp. Aceptamos clientas sin cita según disponibilidad." data-en="Call or message us on WhatsApp. Walk-ins welcome as availability allows.">Llama o escríbenos por WhatsApp. Aceptamos clientas sin cita según disponibilidad.</p>
+    <div class="row">
+      <a class="b1" href="tel:+18137921144" data-es="📞 Llamar" data-en="📞 Call">📞 Llamar</a>
+      <a class="b2" href="https://wa.me/18137921144?text=Hola%2C%20quiero%20reservar%20una%20cita%20en%20Lala%27s" data-es="💬 WhatsApp" data-en="💬 WhatsApp">💬 WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="TESTIMONIOS" data-en="TESTIMONIALS">TESTIMONIOS</div>
+  <h2 data-es="⭐ 5.0 en Google" data-en="⭐ 5.0 on Google">⭐ 5.0 en Google</h2>
+  <p class="sub" data-es="Más de 500 reseñas" data-en="Over 500 reviews">Más de 500 reseñas</p>
+  <div class="rev">
+    <div class="who">Cris C.</div><div class="st">★★★★★</div>
+    <p data-es="“Lala es la mejor. Es una verdadera maestra del threading: rápida como un rayo y no sentí dolor. ¡Recomendadísima!”" data-en="“Lala is the best. A true threading master: lightning fast and I felt no pain. Highly recommended!”">“Lala es la mejor. Es una verdadera maestra del threading: rápida como un rayo y no sentí dolor. ¡Recomendadísima!”</p>
+  </div>
+  <div class="rev">
+    <div class="who">Alyssa V.</div><div class="st">★★★★★</div>
+    <p data-es="“Me arregla las cejas desde 2018. La seguí cuando abrió su salón. ¡Es increíble!”" data-en="“She's done my brows since 2018. I followed her when she opened her salon. She's amazing!”">“Me arregla las cejas desde 2018. La seguí cuando abrió su salón. ¡Es increíble!”</p>
+  </div>
+  <div class="rev">
+    <div class="who">Lytonia D.</div><div class="st">★★★★★</div>
+    <p data-es="“Mis cejas quedaron perfectas. Escucha, se toma su tiempo y el ambiente es hermoso.”" data-en="“My brows came out perfect. She listens, takes her time and the atmosphere is lovely.”">“Mis cejas quedaron perfectas. Escucha, se toma su tiempo y el ambiente es hermoso.”</p>
+  </div>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="GUARDA Y COMPARTE" data-en="SAVE & SHARE">GUARDA Y COMPARTE</div>
+  <h2 data-es="📱 Escanea y visítanos" data-en="📱 Scan & visit us">📱 Escanea y visítanos</h2>
+  <div class="qrs" style="margin-top:14px;">
+    <div class="qr"><img src="qr/qr-maps.png" alt="QR mapa"><p data-es="Cómo llegar" data-en="Directions">Cómo llegar</p></div>
+    <div class="qr"><img src="qr/qr-review.png" alt="QR reseña"><p data-es="Déjanos reseña" data-en="Leave a review">Déjanos reseña</p></div>
+    <div class="qr"><img src="qr/qr-web.png" alt="QR página"><p data-es="Guarda la página" data-en="Save this page">Guarda la página</p></div>
+  </div>
+</section>
+
+<div class="orn">✦ ✦ ✦</div>
+
+<section>
+  <div class="kicker" data-es="HORARIO" data-en="HOURS">HORARIO</div>
+  <h2 data-es="🕖 Horario" data-en="🕖 Hours">🕖 Horario</h2>
+  <div class="hours" style="margin-top:14px;">
+    <table id="hours-table">
+      <tr><td data-es="Lunes" data-en="Monday">Lunes</td><td data-es="Cerrado" data-en="Closed">Cerrado</td></tr>
+      <tr><td data-es="Martes" data-en="Tuesday">Martes</td><td>10:30 AM – 6:30 PM</td></tr>
+      <tr><td data-es="Miércoles" data-en="Wednesday">Miércoles</td><td>10:30 AM – 6:30 PM</td></tr>
+      <tr><td data-es="Jueves" data-en="Thursday">Jueves</td><td>10:30 AM – 6:30 PM</td></tr>
+      <tr><td data-es="Viernes" data-en="Friday">Viernes</td><td>10:30 AM – 6:30 PM</td></tr>
+      <tr><td data-es="Sábado" data-en="Saturday">Sábado</td><td>10:30 AM – 6:30 PM</td></tr>
+      <tr><td data-es="Domingo" data-en="Sunday">Domingo</td><td>12:00 PM – 5:00 PM</td></tr>
+    </table>
+  </div>
+  <div class="info-card" style="margin-top:12px;">
+    <p><strong>4303 Gunn Hwy, Tampa, FL 33618</strong></p>
+    <p><a class="tel" href="tel:+18137921144">(813) 792-1144</a></p>
+  </div>
+</section>
+
+</main>
+
+<a class="fab" href="https://wa.me/18137921144?text=Hola%20Lala%27s%2C%20quiero%20reservar%20una%20cita">💬</a>
+
+<footer>
+  <div class="logo">Lala's Threading & Beauty Salon</div>
+  <p style="margin-top:8px;">4303 Gunn Hwy, Tampa, FL 33618 · (813) 792-1144</p>
+</footer>
+
+<div class="demo-tag" data-es="Página de demostración creada por Lester Manzano · Precios y fotos de muestra" data-en="Demo page by Lester Manzano · Sample prices and photos">Página de demostración creada por Lester Manzano · Precios y fotos de muestra</div>
+
+<script>
+function setLang(l){
+  document.querySelectorAll('[data-es]').forEach(function(el){
+    el.innerHTML = (l==='es') ? el.getAttribute('data-es') : el.getAttribute('data-en');
+  });
+  document.getElementById('btn-es').className = l==='es'?'on':'';
+  document.getElementById('btn-en').className = l==='en'?'on':'';
+  document.documentElement.lang = l;
+  try{ localStorage.setItem('lala_lang', l); }catch(e){}
+}
+(function(){
+  try{ var s = localStorage.getItem('lala_lang'); if(s==='en') setLang('en'); }catch(e){}
+  var d = new Date().getDay();
+  var idx = (d+6)%7;
+  var rows = document.getElementById('hours-table').rows;
+  if(rows[idx]) rows[idx].className = rows[idx].cells[1].textContent.trim().toLowerCase().indexOf('cerrado')>=0 || rows[idx].cells[1].textContent.trim().toLowerCase()==='closed' ? 'today closed' : 'today';
+})();
+</script>
+</body>
+</html>
